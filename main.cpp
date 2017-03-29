@@ -74,7 +74,7 @@ void Ngram_menu() {
 			if(ncount == 1)
 				first_texthangul = false ;
 			if(c1 == ' ') c1 = '_' ;
-			else fprintf(fp_output,"%c", c1) ;
+			fprintf(fp_output,"%c", c1) ;
 		}
 
 		if(ncount == ngram){
@@ -93,7 +93,7 @@ void Ngram_menu() {
 	fclose(fp_input) ;
 	fclose(fp_output) ;
 
-	system("\"wordcount.exe\" -new output.txt word.txt") ;
+	system("\"wordcount.exe\" -new -6 output.txt word.txt") ;
 
 	FILE * fp_print = fopen("word.txt", "r") ;
 
