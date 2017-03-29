@@ -13,7 +13,7 @@ void Ascii_frequency(int ch, int freq[]);
 // 한글 빈도조사
 void Hangul_frequency(int c1, int c2, int hfreq[HANGUL_HEIGHT][HANGUL_WIDTH]);
 void Question_gram() ;
-bool Ishangul(char c1);
+bool Ishangul(char c1) ;
 void Frequency_research();
 void Word_unigram() ;
 
