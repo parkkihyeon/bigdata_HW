@@ -37,8 +37,13 @@ void Ngram_menu() {
 	bool first_texthangul = true ;
 
 	printf("\n\tn을 입력 : " ) ;
-	scanf("%d", &ngram) ;
-
+	while(1){
+		scanf("%d", &ngram) ;
+		if(ngram >= 2 && ngram <= 5) 
+			break ;
+		else 
+			printf("\t재입력 : " ) ; 
+	}
 
 	while(1){
 		ncount++ ;
@@ -56,8 +61,13 @@ void Ngram_menu() {
 			fprintf(fp_output,"%c%c", c1, c2) ;
 		}
 		else if(c1 == '\n') {
-			if(ncount == 1 ) first_texthangul = true ;
-			file_pointersize++;
+			if(ncount == 1 ) {
+				first_texthangul = true ;
+				file_pointersize = 0 ;
+			}
+			else {
+				file_pointersize++ ;
+			}
 			ncount-- ;
 		}
 		else {
@@ -87,7 +97,6 @@ void Ngram_menu() {
 
 	FILE * fp_print = fopen("word.txt", "r") ;
 
-	//system("cls") ;
 	printf("\n\t빈도 카운트 출력\n\n") ;
 	printf("    빈도 %d음절\n\n", ngram) ;
 	while(true){
@@ -98,6 +107,7 @@ void Ngram_menu() {
 	}
 
 	fclose(fp_print) ;
+	system("del \q word.txt") ;
 }
 
 
