@@ -17,16 +17,37 @@ void Word_unigram(){
 	Wordcount_excute() ;
 }
 
+
+char* Filtering_word(char *word) {
+	char *refine = new char[strlen(word)+1] ;
+	int index = 0 ;
+	int c1 , c2 ;
+
+	for(int i=0 ; i<strlen(word); i++){
+		c1 = word[i] & 0x000000ff ;
+		if(c1 & 0x80 ){
+			c2 = word[i] & 0x000000ff ;
+			if (c1 >= 0xB0 && c1 <= 0xC8 && c2 >= 0xA1 && c2 <= 0xFE){
+				refine[index++] = word[i] ;
+				refine[index++] = word[i+1] ;
+				i++ ;
+			}
+		}
+		else if (c1 <= 127 )
+			refine[index++] = c1 ;
+	}
+	refine[index] = '\0' ;
+	return refine ;
+}
+
 void Word_ngram(){
 	system("del /q word.txt") ;
 	FILE * fp_input = fopen(INPUTTXT, "r");
 	FILE * fp_output = fopen(OUTPUTTXT, "w");
 	long filepointer = 0 ;
 	int ncount = 0 ;
-	int wordlen = 0 , first_wordlen = 0 , ngram, c1 ;
-	int first_filepointer = 0 ;
-	int blank_ = 0 ;
-	bool first_word = true ;
+	int first_wordlen = 0 , ngram, c1, c2 , file_pointersize = 0 ;
+	bool first_word = true;
 	char word[BUFSIZ] ;
 
 	printf("\t어절의 수\n") ;
@@ -38,42 +59,60 @@ void Word_ngram(){
 			printf("\t재입력 : " ) ; 
 	}
 
-	while(true){
-		fscanf(fp_input, "%s", word) ;
-		fprintf(fp_output, "%s", word) ;
-		wordlen += strlen(word) ;
-		if(first_word){
-			first_wordlen += strlen(word) ;
-			first_word = false ;
+	//아아 aaaaa bbb    시발련아 ㅋ
+	while(1){
+		c1 = fgetc(fp_input) ;
+		if ( Ishangul(c1)) {
+			c2 = fgetc(fp_input) ;	
+			file_pointersize+= 2 ;
+			if(c1 >= 0xB0 && c1 <= 0xC8 )
+				fprintf(fp_output,"%c%c", c1, c2) ;
 		}
-		ncount++ ;
+		else if ( c1 <= 127 && c1 != ' ' && c1 != '\n'){
+			fprintf(fp_output, "%c", c1) ;
+			file_pointersize++ ;
+		}
+		else {
+			if(c1 == ' ' || c1 == '\n'){
+				if(c1 == '\n')
+					file_pointersize += 2 ;
+				else if(c1 == ' ')
+					file_pointersize ++ ;
+				else
+					file_pointersize += 2;
 
-		while(1){
-			c1 = fgetc(fp_input) ;
-			if(c1 == ' ')
-				wordlen++ ;
-			else if(c1 == '\n')
-				wordlen += 2 ;
-			else {
-				//printf("blank %d\n", blank_) ;
-				fprintf(fp_output, " ") ;
-				if (feof(fp_input))	break ;
-				fseek(fp_input, -1, SEEK_CUR) ;
-				break ;
+				while(1){
+					c1 = fgetc(fp_input) ;
+					if(c1 == ' ' )
+						file_pointersize++ ;
+					else if(c1 == '\n')
+						file_pointersize += 2 ;
+					else {
+						ncount++ ;
+						fprintf(fp_output, " ") ;
+						fseek(fp_input, -1, SEEK_CUR) ;
+						break ;
+					}
+				}
+			}
+			if(first_word){
+				first_wordlen += file_pointersize ;
+				first_word = false ;
 			}
 		}
 
-		if (feof(fp_input))	break ;
+		if(feof(fp_input))break ;
 
 		if(ncount == ngram){
 			fprintf(fp_output, "\n") ;
-			fseek(fp_input, -(wordlen-first_wordlen), SEEK_CUR) ;
-			wordlen = 0 ;
+			fseek(fp_input, -(file_pointersize-first_wordlen), SEEK_CUR) ;
+			file_pointersize = 0 ;
 			first_wordlen = 0 ;
 			ncount = 0 ;
-			wordlen = 0 ;
 			first_word = true ;
 		}
+
+
 	}
 
 	fclose(fp_input) ;
@@ -94,12 +133,13 @@ void Word_Search(){
 	fflush(stdin) ;
 	gets(search) ;
 	fflush(stdin) ;
+	printf("\n") ;
 
 	while(!feof(fp_input)){
 		fscanf(fp_input, "%d", &size) ;
 		fgets(temp,BUFSIZ, fp_input) ;
 		if(strstr(temp, search) != NULL){
-			printf("\t[%s] : %d\n", temp, size);
+			printf("\t%s \t\t 총 갯수 : %d\n", temp, size);
 			success= true ;
 		}
 	}	

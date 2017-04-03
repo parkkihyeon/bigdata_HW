@@ -1,5 +1,6 @@
 #include "bigdata.h"
 
+
 int main()
 {
 	int num ;
