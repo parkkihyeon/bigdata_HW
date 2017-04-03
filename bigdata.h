@@ -12,6 +12,7 @@
 #define MIN_NGRAM 2
 #define MAX_NGRAM 5
 
+
 void Wordcount_excute() ;
 int Keyboard_Safeinput() ;
 

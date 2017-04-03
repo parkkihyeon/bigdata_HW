@@ -17,29 +17,6 @@ void Word_unigram(){
 	Wordcount_excute() ;
 }
 
-
-char* Filtering_word(char *word) {
-	char *refine = new char[strlen(word)+1] ;
-	int index = 0 ;
-	int c1 , c2 ;
-
-	for(int i=0 ; i<strlen(word); i++){
-		c1 = word[i] & 0x000000ff ;
-		if(c1 & 0x80 ){
-			c2 = word[i] & 0x000000ff ;
-			if (c1 >= 0xB0 && c1 <= 0xC8 && c2 >= 0xA1 && c2 <= 0xFE){
-				refine[index++] = word[i] ;
-				refine[index++] = word[i+1] ;
-				i++ ;
-			}
-		}
-		else if (c1 <= 127 )
-			refine[index++] = c1 ;
-	}
-	refine[index] = '\0' ;
-	return refine ;
-}
-
 void Word_ngram(){
 	system("del /q word.txt") ;
 	FILE * fp_input = fopen(INPUTTXT, "r");
@@ -47,7 +24,7 @@ void Word_ngram(){
 	long filepointer = 0 ;
 	int ncount = 0 ;
 	int first_wordlen = 0 , ngram, c1, c2 , file_pointersize = 0 ;
-	bool first_word = true;
+	boolean first_word = true, isword = false ;
 	char word[BUFSIZ] ;
 
 	printf("\t어절의 수\n") ;
@@ -65,11 +42,14 @@ void Word_ngram(){
 		if ( Ishangul(c1)) {
 			c2 = fgetc(fp_input) ;	
 			file_pointersize+= 2 ;
-			if(c1 >= 0xB0 && c1 <= 0xC8 )
+			if(c1 >= 0xB0 && c1 <= 0xC8 ){
 				fprintf(fp_output,"%c%c", c1, c2) ;
+				isword = true ;
+			}
 		}
 		else if ( c1 <= 127 && c1 != ' ' && c1 != '\n'){
 			fprintf(fp_output, "%c", c1) ;
+			isword = true ;
 			file_pointersize++ ;
 		}
 		else {
@@ -87,10 +67,17 @@ void Word_ngram(){
 						file_pointersize++ ;
 					else if(c1 == '\n')
 						file_pointersize += 2 ;
+					else if(c1 == 0xa1){
+						fgetc(fp_input) ;
+						file_pointersize += 2 ;
+					}
 					else {
-						ncount++ ;
-						fprintf(fp_output, " ") ;
-						fseek(fp_input, -1, SEEK_CUR) ;
+						if(isword){
+							ncount++ ;
+							fprintf(fp_output, " ") ;
+							if(feof(fp_input))break ;
+							fseek(fp_input, -1, SEEK_CUR) ;
+						}
 						break ;
 					}
 				}
@@ -109,7 +96,7 @@ void Word_ngram(){
 			file_pointersize = 0 ;
 			first_wordlen = 0 ;
 			ncount = 0 ;
-			first_word = true ;
+			first_word = isword = true ;
 		}
 
 
@@ -127,7 +114,7 @@ void Word_Search(){
 	FILE * fp_input = fopen("word.txt", "r");
 	char search[BUFSIZ], temp[BUFSIZ] ;
 	int size ;
-	bool success = false ;
+	boolean success = false ;
 
 	printf("\t검색 : ") ;
 	fflush(stdin) ;
@@ -174,4 +161,3 @@ void Word_Process(){
 		}
 	}
 }
-

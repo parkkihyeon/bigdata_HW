@@ -15,7 +15,7 @@ void Hangul_frequency(int c1, int c2, int hfreq[HANGUL_HEIGHT][HANGUL_WIDTH])
 		hfreq[c1-0xB0][c2-0xA1]++;
 }
 
-bool Ishangul(char c1){
+boolean Ishangul(char c1){
 	if(c1 & 0x80) 
 		return true ;
 	else return false ;

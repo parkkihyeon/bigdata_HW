@@ -7,7 +7,7 @@ void Syllable_ngram() {
 
 	int c1, c2 , ngram, ncount = 0, max_filepointersize ;
 	long file_pointersize = 0 ;
-	bool first_texthangul = true ;
+	boolean first_texthangul = true ;
 
 	fflush(stdin) ;
 	while(1){
@@ -92,7 +92,7 @@ void Syllable_search(){
 			FILE * fp_input = fopen("word.txt", "r");
 			char search[BUFSIZ], temp[BUFSIZ] ;
 			int size ;
-			bool success = false ;
+			boolean success = false ;
 
 			printf("\t°Ë»ö : ") ;
 			scanf("%s", &search) ;
